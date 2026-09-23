@@ -1,0 +1,1 @@
+console.log("Biblio-Tek iniciado.");
