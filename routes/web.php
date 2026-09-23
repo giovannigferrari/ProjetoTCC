@@ -17,6 +17,11 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\EmprestimoController;
 use App\Http\Controllers\TccController;
 use App\Http\Controllers\MensagemController;
+use App\Http\Controllers\UsuarioFavoritos;
+use App\Http\Controllers\UsuarioHistorico;
+use App\Http\Controllers\UsuarioBiblioteca;
+use App\Http\Controllers\UsuarioMensagens;
+use App\Http\Controllers\UsuarioPerfil;
 
 Route::get('/admin/tccs', [TccController::class, 'index'])
     ->name('admin.tccs');
