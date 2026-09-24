@@ -195,3 +195,38 @@ Route::get('home', [
     HomeController::class,
     'index'
 ])->name('home');
+
+
+
+
+
+
+Route::get('/admin/tccs', [AdminTccController::class, 'index'])
+    ->name('admin.tccs');
+
+Route::get('/admin/upload-tcc', [AdminTccController::class, 'upload'])
+    ->name('admin.upload-tcc');
+
+Route::post('/admin/upload-tcc', [AdminTccController::class, 'store'])
+    ->name('admin.upload-tcc.store');
+
+Route::post('/admin/tccs/{id}/aprovar', [AdminTccController::class, 'aprovar'])
+    ->name('admin.tccs.aprovar');
+
+Route::post('/admin/tccs/{id}/destacar', [AdminTccController::class, 'destacar'])
+    ->name('admin.tccs.destacar');
+
+Route::get('/admin/tccs/{id}/edit', [AdminTccController::class, 'edit'])
+    ->name('admin.tccs.edit');
+
+Route::put('/admin/tccs/{id}', [AdminTccController::class, 'update'])
+    ->name('admin.tccs.update');
+
+Route::delete('/admin/tccs/{id}', [AdminTccController::class, 'destroy'])
+    ->name('admin.tccs.destroy');
+
+Route::get('/admin/livros', [AdminLivroController::class, 'index'])
+    ->name('admin.livros');
+
+Route::get('/admin/livros/criar', [AdminLivroController::class, 'create'])
+    ->name('admin.livros.create');
