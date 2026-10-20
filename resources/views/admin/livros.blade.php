@@ -345,11 +345,17 @@
                             <tr class="hover:bg-slate-50/60 transition-colors">
                                 {{-- CAPA --}}
                                 <td class="pl-6 pr-4 py-3.5 whitespace-nowrap">
-                                    @if ($livro->capa_livro)
-                                        <img src="{{ asset('storage/' . $livro->capa_livro) }}" class="w-11 h-14 rounded-lg object-cover shadow-sm border border-slate-200/60" alt="Capa: {{ $livro->titulo_livro }}">
-                                    @else
-                                        <div class="w-11 h-14 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center border border-slate-200/60"><i class="bi bi-book text-lg"></i></div>
-                                    @endif
+                                    {{-- CAPA --}}
+{{-- CAPA --}}
+<td class="pl-6 pr-4 py-3.5 whitespace-nowrap">
+    @if ($livro->capa_livro)
+        <img src="{{ asset($livro->capa_livro) }}" class="w-11 h-14 rounded-lg object-cover shadow-sm border border-slate-200/60" alt="Capa: {{ $livro->titulo_livro }}">
+    @else
+        <div class="w-11 h-14 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center border border-slate-200/60">
+            <i class="bi bi-book text-lg"></i>
+        </div>
+    @endif
+</td>
                                 </td>
                                 {{-- TÍTULO --}}
                                 <td class="px-4 py-3.5">

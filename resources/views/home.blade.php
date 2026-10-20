@@ -275,7 +275,8 @@
                                     if ($capa && filter_var($capa, FILTER_VALIDATE_URL)) {
                                         $capaUrl = $capa;
                                     } elseif ($capa) {
-                                        $capaUrl = asset($capa);
+                                        $caminhoLimpo = ltrim(str_replace(['public/', '/public/'], '', $capa), '/');
+                                        $capaUrl = asset($caminhoLimpo);
                                     } else {
                                         $capaUrl = null;
                                     }

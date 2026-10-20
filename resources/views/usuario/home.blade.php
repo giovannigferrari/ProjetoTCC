@@ -5,8 +5,8 @@
 @section('content')
 
 <div class="d-flex min-vh-100 bg-light">
-    <div class="position-sticky top-0"style="height: 100vh;">
-    @include('usuario.sidebar')
+    <div class="position-sticky top-0" style="height: 100vh;">
+        @include('usuario.sidebar')
     </div>
     <main class="flex-grow-1 overflow-hidden">
 
@@ -212,7 +212,7 @@
             {{-- LIVROS POR CATEGORIA --}}
             <div id="tcc">
 
-                @forelse($livrosPorCategoria as $categoria => $livros)
+                @forelse($livrosPorCategoria as $categoria => $livrosDaCategoria)
 
                     <section class="mb-5">
 
@@ -226,7 +226,7 @@
                                 </h2>
 
                                 <small class="text-secondary">
-                                    {{ $livros->unique('id_livro')->count() }} livros disponíveis
+                                    {{ $livrosDaCategoria->unique('id_livro')->count() }} livros disponíveis
                                 </small>
 
                             </div>
@@ -264,20 +264,19 @@
                                 scroll-behavior:smooth;
                              ">
 
-                            @foreach($livros->unique('id_livro') as $livro)
+                            @foreach($livrosDaCategoria->unique('id_livro') as $livro)
 
                                 @php
-
                                     $capa = $livro->capa_livro;
 
                                     if ($capa && filter_var($capa, FILTER_VALIDATE_URL)) {
                                         $capaUrl = $capa;
                                     } elseif ($capa) {
-                                        $capaUrl = asset($capa);
+                                        $caminhoLimpo = ltrim(str_replace(['public/', '/public/'], '', $capa), '/');
+                                        $capaUrl = asset($caminhoLimpo);
                                     } else {
                                         $capaUrl = null;
                                     }
-
                                 @endphp
 
                                 <div class="card border-0 shadow-sm rounded-4 flex-shrink-0 overflow-hidden"
@@ -392,18 +391,9 @@
 
                     {{-- NENHUM LIVRO --}}
                     <div class="text-center py-5">
-
-                        <i class="bi bi-book text-secondary"
-                           style="font-size:70px;"></i>
-
-                        <h3 class="fw-bold mt-3">
-                            Nenhum livro encontrado
-                        </h3>
-
-                        <p class="text-secondary">
-                            Ainda não existem livros cadastrados na biblioteca.
-                        </p>
-
+                        <i class="bi bi-book text-secondary" style="font-size:70px;"></i>
+                        <h3 class="fw-bold mt-3">Nenhum livro encontrado</h3>
+                        <p class="text-secondary">Ainda não existem livros cadastrados na biblioteca.</p>
                     </div>
 
                 @endforelse
@@ -416,15 +406,11 @@
 
 </div>
 
-
 {{-- JAVASCRIPT --}}
 <script>
-
 document.addEventListener('DOMContentLoaded', function () {
-
     // Navegação das categorias
     document.querySelectorAll('section').forEach(function (section) {
-
         const carousel = section.querySelector('.categoria-carousel');
         const prev = section.querySelector('.categoria-prev');
         const next = section.querySelector('.categoria-next');
@@ -444,15 +430,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 behavior: 'smooth'
             });
         });
-
     });
-
 
     // Favoritos
     document.querySelectorAll('.favorito-btn').forEach(function (button) {
-
         button.addEventListener('click', function () {
-
             const icon = this.querySelector('i');
             const ativo = icon.classList.contains('bi-heart-fill');
 
@@ -461,19 +443,10 @@ document.addEventListener('DOMContentLoaded', function () {
             icon.classList.toggle('text-secondary', ativo);
             icon.classList.toggle('text-danger', !ativo);
 
-            this.setAttribute(
-                'aria-label',
-                ativo
-                    ? 'Adicionar aos favoritos'
-                    : 'Remover dos favoritos'
             );
-
         });
-
     });
-
 });
-
 </script>
 
 @endsection
