@@ -23,13 +23,56 @@ use App\Http\Controllers\UsuarioBiblioteca;
 use App\Http\Controllers\UsuarioMensagens;
 use App\Http\Controllers\UsuarioPerfil;
 
-Route::get('/admin/tccs', [TccController::class, 'index'])
+Route::get('/livros/buscar-api', [AdminLivroController::class, 'buscarApi'])->name('livros.buscarApi');
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/livros', [AdminLivroController::class, 'index'])->name('livros');
+    Route::post('/livros', [AdminLivroController::class, 'store'])->name('livros.store');
+    Route::put('/livros/{id}', [AdminLivroController::class, 'update'])->name('livros.update');
+    Route::delete('/livros/{id}', [AdminLivroController::class, 'destroy'])->name('livros.destroy');
+});
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/usuarios', [AdminUsuarioController::class, 'index'])->name('usuarios');
+    Route::put('/usuarios/{id}', [AdminUsuarioController::class, 'update'])->name('usuarios.update');
+    Route::patch('/usuarios/{id}/status', [AdminUsuarioController::class, 'toggleStatus'])->name('usuarios.toggleStatus');
+    Route::delete('/usuarios/{id}', [AdminUsuarioController::class, 'destroy'])->name('usuarios.destroy');
+});
+
+Route::get('/admin/usuarios', [AdminUsuarioController::class, 'index'])->name('admin.usuarios');
+Route::get('/admin/tccs/{id}/editar', [AdminTccController::class, 'edit'])
+    ->name('admin.tccs.edit');
+
+Route::put('/admin/tccs/{id}', [AdminTccController::class, 'update'])
+    ->name('admin.tccs.update');
+
+Route::delete('/admin/tccs/{id}', [AdminTccController::class, 'destroy'])
+    ->name('admin.tccs.destroy');
+
+
+Route::get('/admin/tccs', [AdminTccController::class, 'index'])
     ->name('admin.tccs');
 
-Route::get('/admin/upload-tcc', [TccController::class, 'upload'])
+Route::get('/admin/upload-tcc', [AdminTccController::class, 'upload'])
     ->name('admin.upload-tcc');
 
-Route::post('/admin/upload-tcc', [TccController::class, 'store'])
+Route::post('/admin/upload-tcc', [AdminTccController::class, 'store'])
+    ->name('admin.upload-tcc.store');
+
+Route::post('/admin/tccs/{id}/aprovar', [AdminTccController::class, 'aprovar'])
+    ->name('admin.tccs.aprovar');
+
+Route::post('/admin/tccs/{id}/destacar', [AdminTccController::class, 'destacar'])
+    ->name('admin.tccs.destacar');
+
+
+
+
+Route::get('/admin/tccs', [AdminTccController::class, 'index']) 
+    ->name('admin.tccs'); 
+Route::get('/admin/upload-tcc', [AdminTccController::class, 'upload']) 
+    ->name('admin.upload-tcc');
+Route::post('/admin/upload-tcc', [AdminTccController::class, 'store']) 
     ->name('admin.upload-tcc.store');
 
 // ============================================================
