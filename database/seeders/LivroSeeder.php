@@ -12,7 +12,7 @@ class LivroSeeder extends Seeder
         Livro::create([
             'titulo_livro' => 'Fundamentos de Inteligência Artificial',
             'autor_livro' => 'Stuart Russell',
-            'capa_livro' => 'images/livros/adad.jpg',
+            'capa_livro' => 'public/images/livros/passarinho.png',
             'descricao_livro' => 'Introdução aos principais conceitos e fundamentos da Inteligência Artificial.',
             'categoria_livro' => 'Tecnologia',
             'avaliacao_livro' => 4.8,

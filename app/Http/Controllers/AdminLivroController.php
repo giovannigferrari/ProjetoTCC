@@ -12,6 +12,22 @@ class AdminLivroController extends Controller
      */
     public function index(Request $request)
     {
+
+
+    $request->validate([
+    'capa_livro' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+]);
+
+$dados = $request->all();
+
+if ($request->hasFile('capa_livro')) {
+    // Salva a imagem na pasta storage/app/public/livros
+    $dados['capa_livro'] = $request->file('capa_livro')->store('livros', 'public');
+}
+
+Livro::create($dados); // ou $livro->update($dados);
+
+
         $query = Livro::query();
 
         // Busca por título ou autor
