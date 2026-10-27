@@ -22,6 +22,25 @@ use App\Http\Controllers\UsuarioHistorico;
 use App\Http\Controllers\UsuarioBiblioteca;
 use App\Http\Controllers\UsuarioMensagens;
 use App\Http\Controllers\UsuarioPerfil;
+use App\Http\Controllers\FavoritoController;
+
+Route::prefix('usuario')->name('usuario.')->group(function () {
+    Route::get('/perfil', [UsuarioPerfil::class, 'index'])->name('perfil');
+    Route::put('/perfil/update', [UsuarioPerfil::class, 'update'])->name('perfil.update');
+});
+
+
+Route::prefix('usuario')->name('usuario.')->group(function () {
+    // ... rotas anteriores ...
+    Route::get('/tccs', [TccController::class, 'index'])->name('tccs');
+    Route::get('/tccs/{id}/download', [TccController::class, 'download'])->name('tccs.download');
+});
+
+
+Route::prefix('usuario')->name('usuario.')->group(function () {
+    Route::get('/favoritos', [FavoritoController::class, 'index'])->name('favoritos');
+    Route::post('/favoritos/toggle/{id}', [FavoritoController::class, 'toggle'])->name('favoritos.toggle');
+});
 
 Route::get('/livros/buscar-api', [AdminLivroController::class, 'buscarApi'])->name('livros.buscarApi');
 
@@ -148,10 +167,8 @@ Route::get('/admin/usuarios', [
     'index'
 ])->name('admin.usuarios');
 
-Route::get('/usuario/favoritos', [
-    UsuarioFavoritos::class,
-    'index'
-])->name('usuario.favoritos');
+// [AJUSTE]: Removida a linha duplicada de /usuario/favoritos que conflitava com o FavoritoController acima
+// Route::get('/usuario/favoritos', [UsuarioFavoritos::class, 'index'])->name('usuario.favoritos');
 
 Route::get('/usuario/historico', [
     UsuarioHistorico::class,

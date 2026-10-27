@@ -2,227 +2,72 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Tcc;
 use Illuminate\Http\Request;
+use App\Models\Tcc;
 
 class TccController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | GERENCIAR TCCS
-    |--------------------------------------------------------------------------
-    */
-
-    public function index()
+    public function index(Request $request)
     {
-        $tccs = Tcc::orderBy('created_at', 'desc')->get();
+        $userId = session('usuario_id') ?? session('usuario');
 
-        return view('admin.tccs', compact('tccs'));
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | PÁGINA DE UPLOAD
-    |--------------------------------------------------------------------------
-    */
-
-    public function upload()
-    {
-        return view('admin.upload-tcc');
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | SALVAR TCC
-    |--------------------------------------------------------------------------
-    */
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'titulo_tcc' => 'required|string|max:255',
-            'autor_tcc' => 'required|string|max:255',
-            'orientador_tcc' => 'nullable|string|max:255',
-            'curso_tcc' => 'required|string|max:255',
-            'turma_tcc' => 'nullable|string|max:100',
-            'ano_tcc' => 'required|integer|min:2000|max:2100',
-            'resumo_tcc' => 'nullable|string',
-            'palavras_chave_tcc' => 'nullable|string',
-
-            'arquivo_pdf' => 'required|file|mimes:pdf|max:51200',
-            'capa_tcc' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
-
-            'status_tcc' => 'required|in:rascunho,publicado',
-        ]);
-
-        // Upload do PDF
-        $arquivoPdf = $request
-            ->file('arquivo_pdf')
-            ->store('tccs', 'public');
-
-        // Upload da capa
-        $capaTcc = null;
-
-        if ($request->hasFile('capa_tcc')) {
-            $capaTcc = $request
-                ->file('capa_tcc')
-                ->store('tccs/capas', 'public');
+        if (!$userId) {
+            return redirect()->route('login')->with('error', 'Precisa de estar logado.');
         }
 
-        // Salvar no banco
-        Tcc::create([
-            'titulo_tcc' => $request->titulo_tcc,
-            'autor_tcc' => $request->autor_tcc,
-            'orientador_tcc' => $request->orientador_tcc,
-            'curso_tcc' => $request->curso_tcc,
-            'turma_tcc' => $request->turma_tcc,
-            'ano_tcc' => $request->ano_tcc,
-            'resumo_tcc' => $request->resumo_tcc,
-            'palavras_chave_tcc' => $request->palavras_chave_tcc,
-            'arquivo_pdf' => $arquivoPdf,
-            'capa_tcc' => $capaTcc,
+        $query = Tcc::query();
 
-            // Sua coluna no banco é status_tcc_
-            'status_tcc_' => $request->status_tcc,
+        // Filtro de busca textual por tipo (Título, Autor, Orientador, Turma)
+        if ($request->filled('busca')) {
+            $termo = $request->input('busca');
+            $tipoBusca = $request->input('tipo_busca', 'titulo');
 
-            // Caso exista a coluna destacado
-            'destacado' => false,
-        ]);
-
-        return redirect()
-            ->route('admin.tccs')
-            ->with('success', 'TCC cadastrado com sucesso!');
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | APROVAR TCC
-    |--------------------------------------------------------------------------
-    */
-
-    public function aprovar($id)
-    {
-        $tcc = Tcc::findOrFail($id);
-
-        $tcc->status_tcc_ = 'publicado';
-
-        $tcc->save();
-
-        return redirect()
-            ->route('admin.tccs')
-            ->with('success', 'TCC aprovado com sucesso!');
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | DESTACAR TCC
-    |--------------------------------------------------------------------------
-    */
-
-    public function destacar($id)
-    {
-        $tcc = Tcc::findOrFail($id);
-
-        $tcc->destacado = !$tcc->destacado;
-
-        $tcc->save();
-
-        return redirect()
-            ->route('admin.tccs')
-            ->with('success', 'Destaque atualizado com sucesso!');
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | EDITAR TCC
-    |--------------------------------------------------------------------------
-    */
-
-    public function edit($id)
-    {
-        $tcc = Tcc::findOrFail($id);
-
-        return view('admin.edit-tcc', compact('tcc'));
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | ATUALIZAR TCC
-    |--------------------------------------------------------------------------
-    */
-
-    public function update(Request $request, $id)
-    {
-        $tcc = Tcc::findOrFail($id);
-
-        $request->validate([
-            'titulo_tcc' => 'required|string|max:255',
-            'autor_tcc' => 'required|string|max:255',
-            'orientador_tcc' => 'nullable|string|max:255',
-            'curso_tcc' => 'required|string|max:255',
-            'turma_tcc' => 'nullable|string|max:100',
-            'ano_tcc' => 'required|integer|min:2000|max:2100',
-            'resumo_tcc' => 'nullable|string',
-            'palavras_chave_tcc' => 'nullable|string',
-
-            'arquivo_pdf' => 'nullable|file|mimes:pdf|max:51200',
-            'capa_tcc' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
-
-            'status_tcc' => 'required|in:rascunho,publicado',
-        ]);
-
-        $tcc->titulo_tcc = $request->titulo_tcc;
-        $tcc->autor_tcc = $request->autor_tcc;
-        $tcc->orientador_tcc = $request->orientador_tcc;
-        $tcc->curso_tcc = $request->curso_tcc;
-        $tcc->turma_tcc = $request->turma_tcc;
-        $tcc->ano_tcc = $request->ano_tcc;
-        $tcc->resumo_tcc = $request->resumo_tcc;
-        $tcc->palavras_chave_tcc = $request->palavras_chave_tcc;
-        $tcc->status_tcc_ = $request->status_tcc;
-
-        // Substituir PDF somente se enviar um novo
-        if ($request->hasFile('arquivo_pdf')) {
-            $tcc->arquivo_pdf = $request
-                ->file('arquivo_pdf')
-                ->store('tccs', 'public');
+            if ($tipoBusca === 'autor') {
+                $query->where('autor_tcc', 'like', "%{$termo}%");
+            } elseif ($tipoBusca === 'orientador') {
+                $query->where('orientador_tcc', 'like', "%{$termo}%");
+            } elseif ($tipoBusca === 'turma') {
+                $query->where('turma_tcc', 'like', "%{$termo}%");
+            } else {
+                $query->where('titulo_tcc', 'like', "%{$termo}%");
+            }
         }
 
-        // Substituir capa somente se enviar uma nova
-        if ($request->hasFile('capa_tcc')) {
-            $tcc->capa_tcc = $request
-                ->file('capa_tcc')
-                ->store('tccs/capas', 'public');
+        // Filtro por Curso
+        if ($request->filled('curso') && $request->input('curso') != 'todos') {
+            $query->where('curso_tcc', $request->input('curso'));
         }
 
-        $tcc->save();
+        // Filtro por Ano
+        if ($request->filled('ano') && $request->input('ano') != 'todos') {
+            $query->where('ano_tcc', $request->input('ano'));
+        }
 
-        return redirect()
-            ->route('admin.tccs')
-            ->with('success', 'TCC atualizado com sucesso!');
+        // Filtro por Turma (Select secundário)
+        if ($request->filled('turma_filtro') && $request->input('turma_filtro') != 'todos') {
+            $query->where('turma_tcc', $request->input('turma_filtro'));
+        }
+
+        $destaques = Tcc::latest()->take(3)->get();
+        $tccs = $query->get();
+
+        // Dados para preencher os selects dinamicamente usando as colunas corretas
+        $cursos = Tcc::select('curso_tcc')->distinct()->pluck('curso_tcc');
+        $anos = Tcc::select('ano_tcc')->distinct()->orderBy('ano_tcc', 'desc')->pluck('ano_tcc');
+        $turmas = Tcc::select('turma_tcc')->distinct()->pluck('turma_tcc');
+
+        return view('usuario.tccs', compact('destaques', 'tccs', 'cursos', 'anos', 'turmas'));
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | EXCLUIR TCC
-    |--------------------------------------------------------------------------
-    */
-
-    public function destroy($id)
+    public function download($id)
     {
         $tcc = Tcc::findOrFail($id);
+        $caminhoArquivo = storage_path('app/public/' . $tcc->arquivo_pdf);
 
-        $tcc->delete();
+        if (!file_exists($caminhoArquivo)) {
+            return back()->with('error', 'Arquivo PDF não encontrado.');
+        }
 
-        return redirect()
-            ->route('admin.tccs')
-            ->with('success', 'TCC excluído com sucesso!');
+        return response()->download($caminhoArquivo);
     }
 }
