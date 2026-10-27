@@ -62,12 +62,36 @@ class AdminUsuarioController extends Controller
         return redirect()->route('admin.usuarios')->with('success', 'Usuário atualizado com sucesso!');
     }
 
+    public function suspender(Request $request, $id)
+    {
+        $usuario = User::findOrFail($id);
+
+        if ($usuario->tipo_usuario === 'Admin') {
+            return redirect()->route('admin.usuarios')->with('error', 'Não é possível suspender uma conta de administrador.');
+        }
+
+        $duracao = $request->input('duracao');
+
+        $usuario->status_usuario = 'Suspenso';
+        
+        // Se desejar salvar a data limite de suspensão no banco, você pode descomentar a linha abaixo (caso tenha a coluna 'suspenso_ate'):
+        // $usuario->suspenso_ate = ($duracao === 'permanent') ? null : now()->addDays((int) $duracao);
+
+        $usuario->save();
+
+        $mensagem = $duracao === 'permanent' 
+            ? 'Usuário suspenso por período indeterminado!' 
+            : "Usuário suspenso por {$duracao} dias com sucesso!";
+
+        return redirect()->route('admin.usuarios')->with('success', $mensagem);
+    }
+
     public function toggleStatus($id)
     {
         $usuario = User::findOrFail($id);
         
         if ($usuario->tipo_usuario === 'Admin') {
-            return redirect()->route('admin.usuarios')->with('error', 'Não é possível suspender uma conta de administrador.');
+            return redirect()->route('admin.usuarios')->with('error', 'Não é possível alterar o status de uma conta de administrador.');
         }
         
         $usuario->status_usuario = ($usuario->status_usuario === 'Suspenso') ? 'Ativo' : 'Suspenso';
