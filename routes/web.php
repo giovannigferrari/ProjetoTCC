@@ -23,6 +23,20 @@ use App\Http\Controllers\UsuarioBiblioteca;
 use App\Http\Controllers\UsuarioMensagens;
 use App\Http\Controllers\UsuarioPerfil;
 
+// Coloque esta linha PRIMEIRO:
+// E o resource DEPOIS:
+
+
+// 1. PRIMEIRO as rotas estáticas e específicas
+Route::get('/admin/livros/buscar-api', [AdminLivroController::class, 'buscarApi'])->name('admin.livros.buscar-api');
+
+// 2. DEPOIS as rotas de recursos ou com parâmetros dinâmicos
+Route::resource('admin/livros', AdminLivroController::class);
+
+
+// Certifique-se de que está dentro do grupo de administradores, se houver middleware
+Route::patch('/admin/usuarios/{id}/suspender', [AdminUsuarioController::class, 'suspender'])->name('admin.usuarios.suspender');
+
 Route::get('/livros/buscar-api', [AdminLivroController::class, 'buscarApi'])->name('livros.buscarApi');
 
 Route::prefix('admin')->name('admin.')->group(function () {

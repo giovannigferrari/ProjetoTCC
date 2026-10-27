@@ -35,7 +35,7 @@
         {{-- Container da Página --}}
         <div class="p-8 max-w-7xl w-full mx-auto space-y-6">
             
-            {{-- Alertas de Sucesso ou Erro (Passo 3) --}}
+            {{-- Alertas de Sucesso ou Erro --}}
             @if(session('success'))
                 <div class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-2xl text-sm shadow-sm flex items-center justify-between">
                     <span>{{ session('success') }}</span>
@@ -68,7 +68,7 @@
                            class="w-full pl-10 pr-4 py-2.5 bg-slate-100 border-none rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-orange-500 transition-all">
                 </div>
 
-                {{-- Filtros (Todos / Ativos / Suspensos) --}}
+                {{-- Filtros --}}
                 <div class="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
                     <button type="submit" name="status" value="" class="px-4 py-2 {{ request('status') === null ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }} rounded-xl text-sm font-medium transition-all">Todos</button>
                     <button type="submit" name="status" value="Ativo" class="px-4 py-2 {{ request('status') === 'Ativo' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }} rounded-xl text-sm font-medium transition-all">Ativos</button>
@@ -138,14 +138,21 @@
                                                 <i class="bi bi-pencil"></i>
                                             </button>
 
-                                            {{-- Botão Suspender / Ativar --}}
-                                            <form action="{{ route('admin.usuarios.toggleStatus', $user->id_usuario) }}" method="POST" class="inline">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button type="submit" class="p-2 text-slate-400 hover:text-amber-600 transition-colors" title="{{ $user->status_usuario === 'Suspenso' ? 'Ativar' : 'Suspender' }}">
-                                                    <i class="bi {{ $user->status_usuario === 'Suspenso' ? 'bi-check-circle' : 'bi-slash-circle' }}"></i>
+                                            {{-- Botão Suspender ou Ativar --}}
+                                            @if($user->status_usuario === 'Suspenso')
+                                                <form action="{{ route('admin.usuarios.toggleStatus', $user->id_usuario) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit" class="p-2 text-slate-400 hover:text-emerald-600 transition-colors" title="Ativar Usuário">
+                                                        <i class="bi bi-check-circle"></i>
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <button type="button" onclick="openSuspendModal('{{ $user->id_usuario }}', '{{ addslashes($user->nome_usuario) }}')" 
+                                                        class="p-2 text-slate-400 hover:text-amber-600 transition-colors" title="Suspender Usuário">
+                                                    <i class="bi bi-slash-circle"></i>
                                                 </button>
-                                            </form>
+                                            @endif
 
                                             {{-- Botão Excluir --}}
                                             <form action="{{ route('admin.usuarios.destroy', $user->id_usuario) }}" method="POST" class="inline" onsubmit="return confirm('Tem certeza absoluta que deseja eliminar o usuário {{ $user->nome_usuario }}?');">
@@ -170,7 +177,7 @@
                     </table>
                 </div>
 
-                {{-- Rodapé / Paginação do Laravel --}}
+                {{-- Rodapé / Paginação --}}
                 <div class="py-4 px-6 border-t border-slate-100 flex items-center justify-between text-sm text-slate-500">
                     <div>
                         Mostrando {{ $users->firstItem() ?? 0 }} até {{ $users->lastItem() ?? 0 }} de {{ $users->total() }} usuários
@@ -222,6 +229,39 @@
     </div>
 </div>
 
+{{-- Modal de Tempo de Suspensão --}}
+<div id="suspendModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl space-y-4">
+        <div class="flex justify-between items-center border-b pb-3">
+            <h3 class="text-lg font-bold text-slate-900">Suspender Usuário</h3>
+            <button onclick="closeSuspendModal()" class="text-slate-400 hover:text-slate-600"><i class="bi bi-x-lg"></i></button>
+        </div>
+        
+        <form id="suspendForm" method="POST" class="space-y-4">
+            @csrf
+            @method('PATCH')
+
+            <p class="text-sm text-slate-600">Selecione o tempo de suspensão para <strong id="suspendUserName" class="text-slate-900"></strong>:</p>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Duração da Suspensão</label>
+                <select name="duracao" required class="w-full px-4 py-2 bg-slate-100 rounded-xl text-sm border-none focus:ring-2 focus:ring-orange-500 text-slate-800">
+                    <option value="3">3 dias</option>
+                    <option value="7" selected>7 dias</option>
+                    <option value="15">15 dias</option>
+                    <option value="30">30 dias</option>
+                    <option value="permanent">Indefinido / Permanente</option>
+                </select>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-4">
+                <button type="button" onclick="closeSuspendModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-medium">Cancelar</button>
+                <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-medium shadow-md shadow-amber-600/20">Confirmar Suspensão</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     function openEditModal(id, nome, email, turma) {
         document.getElementById('editModal').classList.remove('hidden');
@@ -233,6 +273,16 @@
 
     function closeEditModal() {
         document.getElementById('editModal').classList.add('hidden');
+    }
+
+    function openSuspendModal(id, nome) {
+        document.getElementById('suspendModal').classList.remove('hidden');
+        document.getElementById('suspendForm').action = '/admin/usuarios/' + id + '/suspender';
+        document.getElementById('suspendUserName').innerText = nome;
+    }
+
+    function closeSuspendModal() {
+        document.getElementById('suspendModal').classList.add('hidden');
     }
 </script>
 
