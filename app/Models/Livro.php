@@ -22,6 +22,7 @@ class Livro extends Model
         'avaliacao_livro',
         'status_livro',
         'data_cadastro',
+        'favorito', // <-- ADICIONADO AQUI
     ];
 
     protected $casts = [

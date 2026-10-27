@@ -7,6 +7,8 @@
     <!-- Tailwind CSS & Ícones do Bootstrap -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Bootstrap CSS (caso precise para os cards/grid) se estiver usando no projeto -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 font-sans antialiased">
 
@@ -78,7 +80,7 @@
                 </div>
 
                 <!-- Grid dos Cards (2º Bloco) -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <!-- Card 4: Pendências -->
                     <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex justify-between items-start">
                         <div>
@@ -114,6 +116,48 @@
                             <i class="bi bi-bookmark text-xl"></i>
                         </div>
                     </div>
+                </div>
+
+                <!-- Seção de Acervo de Livros por Categoria com Botão de Favoritar -->
+                <div class="mt-10">
+                    <h3 class="text-xl font-bold text-gray-900 mb-6">Acervo de Livros</h3>
+
+                    @if(isset($livrosPorCategoria) && count($livrosPorCategoria) > 0)
+                        @foreach($livrosPorCategoria as $categoriaNome => $livrosDaCategoria)
+                            <div class="mb-8">
+                                <h4 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">{{ $categoriaNome }}</h4>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                    @foreach($livrosDaCategoria as $livro)
+                                        <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm relative flex flex-col justify-between">
+                                            
+                                            <!-- Botão de Favoritar (Coração) -->
+                                            <form action="{{ route('usuario.favoritos.toggle', $livro->id) }}" method="POST" class="absolute top-3 right-3 z-10">
+                                                @csrf
+                                                <button type="submit" class="w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center border-0 hover:bg-gray-50 transition" title="Favoritar">
+                                                    <i class="bi {{ $livro->favorito ? 'bi-heart-fill text-red-500' : 'bi-heart text-gray-400' }}"></i>
+                                                </button>
+                                            </form>
+
+                                            <div>
+                                                <h5 class="font-bold text-gray-900 text-base mb-1 truncate pr-8" title="{{ $livro->titulo }}">{{ $livro->titulo }}</h5>
+                                                <p class="text-xs text-gray-500 mb-3">{{ $livro->autor }}</p>
+                                            </div>
+
+                                            <div class="flex items-center justify-between mt-4">
+                                                <span class="text-xs px-2.5 py-1 rounded-full font-medium {{ ($livro->quantidade_disponivel ?? 1) > 0 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600' }}">
+                                                    {{ ($livro->quantidade_disponivel ?? 1) > 0 ? 'Disponível' : 'Indisponível' }}
+                                                </span>
+                                            </div>
+
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <p class="text-sm text-gray-500">Nenhum livro cadastrado no momento.</p>
+                    @endif
                 </div>
 
             </main>

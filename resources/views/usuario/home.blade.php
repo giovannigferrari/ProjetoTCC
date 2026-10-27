@@ -329,17 +329,18 @@
 
 
                                         {{-- FAVORITO --}}
-                                        <button type="button"
-                                                class="favorito-btn btn bg-white rounded-circle shadow-sm
-                                                       position-absolute top-0 end-0 m-2
-                                                       d-flex align-items-center justify-content-center"
-                                                style="width:35px;height:35px;"
-                                                aria-label="Adicionar aos favoritos">
+<form action="{{ route('usuario.favoritos.toggle', $livro->id_livro) }}" method="POST" class="position-absolute top-0 end-0 m-2" style="z-index: 10;">
+    @csrf
+    <button type="submit"
+            class="btn bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0 border-0"
+            style="width:35px;height:35px;"
+            title="Favoritar livro">
+        
+        {{-- Se o livro for favorito, mostra preenchido e vermelho; senão, vazio e cinza --}}
+        <i class="bi {{ $livro->favorito ? 'bi-heart-fill text-danger' : 'bi-heart text-secondary' }}"></i>
 
-                                            <i class="bi bi-heart text-secondary"></i>
-
-                                        </button>
-
+    </button>
+</form>
                                     </div>
 
 
@@ -429,21 +430,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 left: -420,
                 behavior: 'smooth'
             });
-        });
-    });
-
-    // Favoritos
-    document.querySelectorAll('.favorito-btn').forEach(function (button) {
-        button.addEventListener('click', function () {
-            const icon = this.querySelector('i');
-            const ativo = icon.classList.contains('bi-heart-fill');
-
-            icon.classList.toggle('bi-heart', ativo);
-            icon.classList.toggle('bi-heart-fill', !ativo);
-            icon.classList.toggle('text-secondary', ativo);
-            icon.classList.toggle('text-danger', !ativo);
-
-            );
         });
     });
 });
